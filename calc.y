@@ -24,13 +24,13 @@ int sym[26];                             /* symbol table */
 %token <dValue> REAL
 
 %token <str> VARIABLE 
-%token WHILE IF PRINT 
+%token WHILE IF PRINT FRAC MUL SUM SQRT
 %nonassoc IFX 
 %nonassoc ELSE 
 
 %left GE LE EQ NE '>' '<' 
 %left '+' '-' 
-%left '*' '/' 
+%left MUL '/' 
 %nonassoc UMINUS 
 
 %type <nPtr> stmt expr stmt_list 
@@ -64,13 +64,19 @@ stmt_list:
   ; 
 
 expr: 
-     REAL                    { $$ = con($1); } 
+     REAL                       { $$ = con($1); } 
   | VARIABLE                    { $$ = id($1); } 
-  | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); } 
+  | '-' expr %prec UMINUS 		{ $$ = opr(UMINUS, 1, $2); } 
   | expr '+' expr               { $$ = opr('+', 2, $1, $3); } 
   | expr '-' expr               { $$ = opr('-', 2, $1, $3); } 
-  | expr '*' expr               { $$ = opr('*', 2, $1, $3); } 
-  | expr '/' expr               { $$ = opr('/', 2, $1, $3); } 
+  | expr MUL expr               { $$ = opr('*', 2, $1, $3); } 
+  | expr '/' expr               { $$ = opr('/', 2, $1, $3); }
+  | FRAC '{'expr'}' '{'expr'}'  { $$ = opr('/', 2, $3, $6); }
+  | SUM '{'VARIABLE '=' expr '}' '^' '{'expr'}''{'expr'}'     
+								{ $$ = opr(SUM, 4, id($3), $5, $9, $12);}
+  | SQRT '{' expr '}'			{ $$ = opr('^', 2, con(0.5), $3); } 
+  | SQRT '[' REAL ']''{' expr '}'			
+								{ $$ = opr('^', 2, con(1/$3), $6); } 
   | expr '<' expr               { $$ = opr('<', 2, $1, $3); } 
   | expr '>' expr               { $$ = opr('>', 2, $1, $3); } 
   | expr GE expr                { $$ = opr(GE, 2, $1, $3); } 
@@ -78,6 +84,7 @@ expr:
   | expr NE expr                { $$ = opr(NE, 2, $1, $3); } 
   | expr EQ expr                { $$ = opr(EQ, 2, $1, $3); } 
   | '(' expr ')'                { $$ = $2; } 
+  | error						{ printf("%d: Error at (%c)\n", lineno, yychar);}	
   ; 
 
 %% 

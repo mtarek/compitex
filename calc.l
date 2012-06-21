@@ -4,6 +4,7 @@
 #include "calc.h" 
 #include "y.tab.h" 
 void yyerror(char *); 
+int lineno=1;
 %} 
 
 digit   [0-9]
@@ -11,6 +12,10 @@ letter  [a-zA-Z]
 real    {digit}+(\.{digit}+)?
 res		"while"|"if"|"else"|"print"
 var     ({letter}|"_")({letter}|{digit}|","|"_")*
+mul     "\\times"
+frac    "\\frac"
+sum		"\\sum_"
+sqrt	"\\sqrt"
 %% 
 
 {res}			{
@@ -23,6 +28,13 @@ var     ({letter}|"_")({letter}|{digit}|","|"_")*
 					if(!strcmp(yytext, "print"))
 						return PRINT;
 				}
+
+{mul}			return MUL;
+{frac}			return FRAC;
+{sum}			{return SUM;}
+{sqrt}			{return SQRT;}
+"\\{"			return '{';
+"\\}"			return '}';
  
 {var}           { 
                           yylval.str = strdup(yytext); 
@@ -34,7 +46,7 @@ var     ({letter}|"_")({letter}|{digit}|","|"_")*
                           return REAL; 
                 } 
 
-[-()<>=+*/;{}.] { 
+[-()<>=+/;\[\]{}^.]  { 
                           return *yytext; 
                 } 
 
@@ -42,7 +54,8 @@ var     ({letter}|"_")({letter}|{digit}|","|"_")*
 "<="                       return LE; 
 "=="                       return EQ; 
 "!="                       return NE; 
- [ \t\r\n]+                ;            /* ignore whitespace */ 
+ [ \t\r]+                ;            /* ignore whitespace */ 
+ [\n]			lineno++;
 
  .                         {	
 								char erstr[32];

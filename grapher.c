@@ -74,6 +74,8 @@ subnodes) */
                  case WHILE:       s = "while"; break; 
                  case IF:          s = "if";     break; 
                  case PRINT:       s = "print"; break; 
+				 case SUM:		   s = "sum"; break;
+				 case '^':		   s = "[^]";break;
                  case ';':         s = "[;]";      break; 
                  case '=':         s = "[=]";      break; 
                  case UMINUS:      s = "[_]";      break; 
