@@ -1,15 +1,30 @@
 %{ 
 #include <stdlib.h> 
+#include <string.h>
 #include "calc.h" 
 #include "y.tab.h" 
 void yyerror(char *); 
 %} 
 
+digit   [0-9]
+letter  [a-zA-Z]
+res		"while"|"if"|"else"|"print"
+var     ({letter}|"_")({letter}|{digit}|","|"_")*
 %% 
 
+{res}			{
+					if(!strcmp(yytext, "while"))
+						return WHILE;
+					if(!strcmp(yytext, "if"))
+						return IF;
+					if(!strcmp(yytext, "else"))
+						return ELSE;
+					if(!strcmp(yytext, "print"))
+						return PRINT;
+				}
  
-[a-z]           { 
-                          yylval.sIndex = *yytext - 'a'; 
+{var}           { 
+                          yylval.str = strdup(yytext); 
                           return VARIABLE; 
 				} 
 
@@ -26,14 +41,12 @@ void yyerror(char *);
 "<="                       return LE; 
 "=="                       return EQ; 
 "!="                       return NE; 
-"while"                    return WHILE; 
-"if"                       return IF; 
-"else"                     return ELSE; 
-"print"                    return PRINT; 
+ [ \t\r\n]+                ;            /* ignore whitespace */ 
 
- [ \t\n]+                  ;            /* ignore whitespace */ 
-
- .                         yyerror("Unknown character"); 
+ .                         {	
+								char erstr[32];
+								sprintf(erstr, "Unknown character(%c)", *yytext);
+								yyerror(erstr); }
 %% 
 int yywrap(void) { 
        return 1; 

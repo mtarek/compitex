@@ -68,7 +68,7 @@ subnodes) */
     s = word; 
     switch(p->type) { 
          case typeCon: sprintf (word, "c(%d)", p->con.value); break; 
-         case typeId:  sprintf (word, "id(%c)", p->id.i + 'A'); break; 
+         case typeId:  sprintf (word, "id(%s)", p->id.s); break; 
          case typeOpr: 
              switch(p->opr.oper){ 
                  case WHILE:       s = "while"; break; 

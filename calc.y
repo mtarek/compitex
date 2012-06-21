@@ -6,7 +6,7 @@
 
 /* prototypes */ 
 nodeType *opr(int oper, int nops, ...); 
-nodeType *id(int i); 
+nodeType *id(char* s); 
 nodeType *con(int value); 
 void freeNode(nodeType *p); 
 int ex(nodeType *p); 
@@ -18,13 +18,12 @@ int sym[26];                             /* symbol table */
 
 %union { 
      int iValue;                         /* integer value */ 
-     char sIndex;                        /* symbol table index */ 
+     char* str;                          /* symbol table index */ 
      nodeType *nPtr;                     /* node pointer */ 
 }; 
 
 %token <iValue> INTEGER 
-%token <fValue>	REAL
-%token <sIndex> VARIABLE 
+%token <str> VARIABLE 
 %token WHILE IF PRINT 
 %nonassoc IFX 
 %nonassoc ELSE 
@@ -102,7 +101,7 @@ nodeType *con(int value) {
 } 
 
 
-nodeType *id(int i) { 
+nodeType *id(char* s) { 
      nodeType *p; 
      size_t nodeSize; 
 
@@ -113,7 +112,7 @@ nodeType *id(int i) {
 
       /* copy information */ 
       p->type = typeId; 
-      p->id.i = i; 
+      p->id.s = strdup(s); 
 
       return p; 
 } 
