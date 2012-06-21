@@ -11,7 +11,8 @@ digit   [0-9]
 letter  [a-zA-Z]
 real    {digit}+(\.{digit}+)?
 res		"while"|"if"|"else"|"print"
-var     ({letter}|"_")({letter}|{digit}|","|"_")*
+bar		"\\bar"
+var     ({letter}|"_")({letter}|{digit}|","|"_"|"\*")*
 mul     "\\times"
 frac    "\\frac"
 sum		"\\sum_"
@@ -33,6 +34,7 @@ sqrt	"\\sqrt"
 {frac}			return FRAC;
 {sum}			{return SUM;}
 {sqrt}			{return SQRT;}
+{bar}			{return BAR;}
 "\\{"			return '{';
 "\\}"			return '}';
  

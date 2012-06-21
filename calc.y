@@ -24,7 +24,7 @@ int sym[26];                             /* symbol table */
 %token <dValue> REAL
 
 %token <str> VARIABLE 
-%token WHILE IF PRINT FRAC MUL SUM SQRT
+%token WHILE IF PRINT FRAC MUL SUM SQRT BAR
 %nonassoc IFX 
 %nonassoc ELSE 
 
@@ -50,7 +50,7 @@ stmt:
      ';'                            { $$ = opr(';', 2, NULL, NULL); } 
    | expr ';'                       { $$ = $1; } 
    | PRINT expr ';'                 { $$ = opr(PRINT, 1, $2); } 
-   | VARIABLE '=' expr ';'          { $$ = opr('=', 2, id($1), $3); } 
+   | expr '=' expr ';'              { $$ = opr('=', 2, $1, $3); }
   | WHILE '(' expr ')' stmt { $$ = opr(WHILE, 2, $3, $5); } 
   | IF '(' expr ')' stmt %prec IFX { $$ = opr(IF, 2, $3, $5); } 
   | IF '(' expr ')' stmt ELSE stmt 
@@ -66,10 +66,15 @@ stmt_list:
 expr: 
      REAL                       { $$ = con($1); } 
   | VARIABLE                    { $$ = id($1); } 
+  | BAR '{' VARIABLE '}'		{
+									char tmp[32];
+									sprintf(tmp, "%s_bar", $3);
+									$$ = id(tmp);
+								}
   | '-' expr %prec UMINUS 		{ $$ = opr(UMINUS, 1, $2); } 
-  | expr '+' expr               { $$ = opr('+', 2, $1, $3); } 
+  | expr '+' expr               { $$ = opr('+', 2, $1, $3); }
   | expr '-' expr               { $$ = opr('-', 2, $1, $3); } 
-  | expr MUL expr               { $$ = opr('*', 2, $1, $3); } 
+  | expr MUL expr               { $$ = opr('*', 2, $1, $3); }
   | expr '/' expr               { $$ = opr('/', 2, $1, $3); }
   | FRAC '{'expr'}' '{'expr'}'  { $$ = opr('/', 2, $3, $6); }
   | SUM '{'VARIABLE '=' expr '}' '^' '{'expr'}''{'expr'}'     
