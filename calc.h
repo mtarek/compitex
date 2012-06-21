@@ -2,7 +2,7 @@ typedef enum { typeCon, typeId, typeOpr } nodeEnum;
 
 /* constants */
 typedef struct {
-	int value; /* value of constant */
+	double value; /* value of constant */
 } conNodeType;
 
 /* identifiers */

@@ -67,7 +67,7 @@ subnodes) */
     strcpy (word, "???"); /* should never appear */ 
     s = word; 
     switch(p->type) { 
-         case typeCon: sprintf (word, "c(%d)", p->con.value); break; 
+         case typeCon: sprintf (word, "c(%g)", p->con.value); break; 
          case typeId:  sprintf (word, "id(%s)", p->id.s); break; 
          case typeOpr: 
              switch(p->opr.oper){ 

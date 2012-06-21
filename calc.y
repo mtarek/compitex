@@ -7,7 +7,7 @@
 /* prototypes */ 
 nodeType *opr(int oper, int nops, ...); 
 nodeType *id(char* s); 
-nodeType *con(int value); 
+nodeType *con(double value); 
 void freeNode(nodeType *p); 
 int ex(nodeType *p); 
 int yylex(void); 
@@ -17,12 +17,12 @@ int sym[26];                             /* symbol table */
 %} 
 
 %union { 
-     int iValue;                         /* integer value */ 
-     char* str;                          /* symbol table index */ 
-     nodeType *nPtr;                     /* node pointer */ 
+	double dValue;                      /* double value */ 
+    char* str;                          /* string value */ 
+	nodeType *nPtr;                     /* node pointer */ 
 }; 
+%token <dValue> REAL
 
-%token <iValue> INTEGER 
 %token <str> VARIABLE 
 %token WHILE IF PRINT 
 %nonassoc IFX 
@@ -64,7 +64,7 @@ stmt_list:
   ; 
 
 expr: 
-     INTEGER                    { $$ = con($1); } 
+     REAL                    { $$ = con($1); } 
   | VARIABLE                    { $$ = id($1); } 
   | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); } 
   | expr '+' expr               { $$ = opr('+', 2, $1, $3); } 
@@ -84,7 +84,7 @@ expr:
 
 #define SIZEOF_NODETYPE ((char *)&p->con - (char *)p) 
 
-nodeType *con(int value) { 
+nodeType *con(double value) { 
      nodeType *p; 
      size_t nodeSize; 
 

@@ -8,6 +8,7 @@ void yyerror(char *);
 
 digit   [0-9]
 letter  [a-zA-Z]
+real    {digit}+(\.{digit}+)?
 res		"while"|"if"|"else"|"print"
 var     ({letter}|"_")({letter}|{digit}|","|"_")*
 %% 
@@ -28,9 +29,9 @@ var     ({letter}|"_")({letter}|{digit}|","|"_")*
                           return VARIABLE; 
 				} 
 
-[0-9]+          { 
-                          yylval.iValue = atoi(yytext); 
-                          return INTEGER; 
+{real}            { 
+                          yylval.dValue = atof(yytext); 
+                          return REAL; 
                 } 
 
 [-()<>=+*/;{}.] { 
