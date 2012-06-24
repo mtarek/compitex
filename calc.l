@@ -32,9 +32,9 @@ sqrt	"\\sqrt"
 
 {mul}			return MUL;
 {frac}			return FRAC;
-{sum}			{return SUM;}
-{sqrt}			{return SQRT;}
-{bar}			{return BAR;}
+{sum}			return SUM;
+{sqrt}			return SQRT;
+{bar}			return BAR;
 "\\{"			return '{';
 "\\}"			return '}';
  

@@ -31,6 +31,7 @@ int sym[26];                             /* symbol table */
 %left GE LE EQ NE '>' '<' 
 %left '+' '-' 
 %left MUL '/' 
+%nonassoc '^'
 %nonassoc UMINUS 
 
 %type <nPtr> stmt expr stmt_list 
@@ -79,9 +80,10 @@ expr:
   | FRAC '{'expr'}' '{'expr'}'  { $$ = opr('/', 2, $3, $6); }
   | SUM '{'VARIABLE '=' expr '}' '^' '{'expr'}''{'expr'}'     
 								{ $$ = opr(SUM, 4, id($3), $5, $9, $12);}
-  | SQRT '{' expr '}'			{ $$ = opr('^', 2, con(0.5), $3); } 
+  | SQRT '{' expr '}'			{ $$ = opr('^', 2, $3,con(0.5)); }
   | SQRT '[' REAL ']''{' expr '}'			
-								{ $$ = opr('^', 2, con(1/$3), $6); } 
+								{ $$ = opr('^', 2, $6, con(1/$3)); }
+  | expr '^' '{' expr '}'       { $$ = opr('^', 2, $1, $4); }
   | expr '<' expr               { $$ = opr('<', 2, $1, $3); } 
   | expr '>' expr               { $$ = opr('>', 2, $1, $3); } 
   | expr GE expr                { $$ = opr(GE, 2, $1, $3); } 
