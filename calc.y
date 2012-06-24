@@ -34,7 +34,7 @@ int sym[26];                             /* symbol table */
 %nonassoc '^'
 %nonassoc UMINUS 
 
-%type <nPtr> stmt expr stmt_list 
+%type <nPtr> stmt expr stmt_list ident
 
 %% 
 
@@ -64,9 +64,13 @@ stmt_list:
   | stmt_list stmt              { $$ = opr(';', 2, $1, $2); } 
   ; 
 
-expr: 
-     REAL                       { $$ = con($1); } 
+ident:
+	REAL                        { $$ = con($1); }
   | VARIABLE                    { $$ = id($1); } 
+  ;
+
+expr:
+    ident
   | BAR '{' VARIABLE '}'		{
 									char tmp[32];
 									sprintf(tmp, "%s_bar", $3);
@@ -91,6 +95,10 @@ expr:
   | expr NE expr                { $$ = opr(NE, 2, $1, $3); } 
   | expr EQ expr                { $$ = opr(EQ, 2, $1, $3); } 
   | '(' expr ')'                { $$ = $2; } 
+  | ident ident					{ $$ = opr('*', 2, $1, $2); }
+  | ident '(' expr ')'			{ $$ = opr('*', 2, $1, $3); }
+  | '(' expr ')' ident			{ $$ = opr('*', 2, $2, $4); }
+  | '(' expr ')' '(' expr ')'	{ $$ = opr('*', 2, $2, $5); }
   | error						{ printf("%d: Error at (%c)\n", lineno, yychar);}	
   ; 
 
