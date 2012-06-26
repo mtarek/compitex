@@ -31,7 +31,7 @@ int sym[26];                             /* symbol table */
 %left GE LE EQ NE '>' '<' 
 %left '+' '-' 
 %left MUL '/' 
-%nonassoc '^'
+%right '^'
 %nonassoc UMINUS 
 
 %type <nPtr> stmt expr stmt_list ident
@@ -39,19 +39,19 @@ int sym[26];                             /* symbol table */
 %% 
 
 program: 
-   function                      { exit(0); } 
+   function                        { exit(0); } 
    ; 
 
 function: 
-     function stmt               { ex($2); freeNode($2); } 
-   | /* NULL */ 
+    function stmt                  { ex($2); freeNode($2); } 
+  | /* NULL */ 
    ; 
 
 stmt: 
-     ';'                            { $$ = opr(';', 2, NULL, NULL); } 
-   | expr ';'                       { $$ = $1; } 
-   | PRINT expr ';'                 { $$ = opr(PRINT, 1, $2); } 
-   | expr '=' expr ';'              { $$ = opr('=', 2, $1, $3); }
+    ';'                            { $$ = opr(';', 2, NULL, NULL); } 
+  | expr ';'                       { $$ = $1; } 
+  | PRINT expr ';'                 { $$ = opr(PRINT, 1, $2); } 
+  | expr '=' expr ';'              { $$ = opr('=', 2, $1, $3); }
   | WHILE '(' expr ')' stmt { $$ = opr(WHILE, 2, $3, $5); } 
   | IF '(' expr ')' stmt %prec IFX { $$ = opr(IF, 2, $3, $5); } 
   | IF '(' expr ')' stmt ELSE stmt 
@@ -60,7 +60,7 @@ stmt:
      ; 
 
 stmt_list: 
-     stmt                       { $$ = $1; } 
+    stmt                       { $$ = $1; } 
   | stmt_list stmt              { $$ = opr(';', 2, $1, $2); } 
   ; 
 

@@ -39,31 +39,34 @@ sqrt	"\\sqrt"
 "\\}"			return '}';
  
 {var}           { 
-                          yylval.str = strdup(yytext); 
-                          return VARIABLE; 
+					yylval.str = strdup(yytext); 
+                    return VARIABLE; 
 				} 
 
-{real}            { 
-                          yylval.dValue = atof(yytext); 
-                          return REAL; 
+{real}          { 
+                    yylval.dValue = atof(yytext); 
+                    return REAL; 
                 } 
 
-[-()<>=+/;\[\]{}^.]  { 
-                          return *yytext; 
+[-()<>=+/;\[\]{}^.]  
+				{ 
+                    return *yytext; 
                 } 
 
-">="                       return GE; 
-"<="                       return LE; 
-"=="                       return EQ; 
-"!="                       return NE; 
+">="            return GE; 
+"<="            return LE; 
+"=="            return EQ; 
+"!="            return NE; 
  [ \t\r]+                ;            /* ignore whitespace */ 
  [\n]			lineno++;
 
- .                         {	
-								char erstr[32];
-								sprintf(erstr, "Unknown character(%c)", *yytext);
-								yyerror(erstr); }
+ .              {	
+					char erstr[32];
+					sprintf(erstr, "Unknown character(%c)", *yytext);
+					yyerror(erstr); 
+				}
 %% 
-int yywrap(void) { 
-       return 1; 
+int yywrap(void)
+{ 
+    return 1; 
 } 
