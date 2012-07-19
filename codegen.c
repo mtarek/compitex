@@ -1,32 +1,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <stdarg.h>
 #include "parser.h"
 #include "y.tab.h"
+#include "util.h"
 #include "compitex.h"
 
 #define MAXEXP  4096
 
 static FILE *_out, *_in;
+int INDENT;
+
 typedef struct sumNode {
     char    idx[2];
     char    svar[8];
     char    lo[12], hi[12];
     char    expr[MAXEXP];
 } sumNode;
-
-void inline strfcat(char * dst, const char * fmt, ...) 
-{
-    char tmp[2048];
-    va_list args;
-    
-    va_start(args, fmt);
-    vsprintf(tmp, fmt, args);
-    va_end(args);
-
-    strcat(dst, tmp);
-}
 
 char* _ex2 (char * dst, nodeType *p) {
     int nops;
@@ -112,7 +102,7 @@ char* _ex2 (char * dst, nodeType *p) {
     return dst;   
 }
 
-int parse_sum_node(sumNode * s, nodeType * p) 
+int parse_sum_node(sumNode * s, nodeType * p, int parse_exp) 
 {
     if(!p)
         return -1;
@@ -135,7 +125,8 @@ int parse_sum_node(sumNode * s, nodeType * p)
     
     _ex2(s->hi, p->opr.op[2]);
      
-    _ex2(s->expr, p->opr.op[3]);   
+    if(parse_exp) 
+        _ex2(s->expr, p->opr.op[3]);   
     
     return 0;    
 }
@@ -152,23 +143,39 @@ char* _sumpass(char *dst, nodeType *p, int topcall) {
     
     switch(p->type) {
     case typeOpr:
-        _sumpass(dst, p->opr.op[p->opr.nops-1], 0);
-        
         if(p->opr.oper == SUM) {
             s = calloc(1, sizeof(sumNode));
-            
-            ret = parse_sum_node(s, p);
+            ret = parse_sum_node(s, p, 0);
             if(ret < 0) {
                 printf("ERR(%d)\n", ret);
                 return -1;
             }
             
             sprintf(s->svar, "sum%d", sumid++);
-            strfcat(dst, "double %s=0;\n", s->svar);
-            strfcat(dst, 
-                   "for(%s = %s; %s <= %s ; %s++)\n"
+            strfcati(dst, "double %s=0;\n", s->svar);
+            strfcati(dst, 
+                   "for(%s = %s; %s <= %s ; %s++) {\n",
+                   s->idx, s->lo, s->idx, s->hi, s->idx
+                   ); 
+                   
+            INDENT++;
+                   
+
+        }
+        
+        _sumpass(dst, p->opr.op[p->opr.nops-1], 0);
+        
+        if(p->opr.oper == SUM) {
+
+            ret = parse_sum_node(s, p, 1);
+            if(ret < 0) {
+                printf("ERR(%d)\n", ret);
+                return -1;
+            }
+            
+
+            strfcati(dst, 
                    "    %s += %s;\n",
-                   s->idx, s->lo, s->idx, s->hi, s->idx,
                    s->svar, s->expr
                    );
   
@@ -176,8 +183,11 @@ char* _sumpass(char *dst, nodeType *p, int topcall) {
 
             free(s);
         }
-        
-        _sumpass(dst, p->opr.op[0], 0);
+        _sumpass(dst, p->opr.op[0], 0);        
+        if(p->opr.oper == SUM) {
+            INDENT--;
+            strfcati(dst, "}\n");
+        }
         break;
         
     default:
@@ -218,6 +228,7 @@ int ex(nodeType *p) {
     _sumpass(mainbuf, p, 1);
     fprintf(_out, "%s\n", mainbuf);
 
+    memset(mainbuf, 0, MAXEXP);
     _ex2(mainbuf, p);
     fprintf(_out, "%s\n\n", mainbuf);
     return 0;
