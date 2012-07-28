@@ -13,6 +13,8 @@ static int dummy_eq(void *d1, void *d2)
 
 void List_init(List *l, int (*compare) (void *d1, void *d2))
 {
+	//l = calloc(1, sizeof(List));
+	
 	if(compare)
 		eq = compare;
 	else
@@ -47,6 +49,7 @@ void List_add(List *l, void *data)
 
 int List_contains(List *l, void *data)
 {
+
 	if(l->size == 0)
 		return 0;
 	
@@ -62,6 +65,7 @@ int List_contains(List *l, void *data)
 }
 void List_addonce(List *l, void *data)
 {
+		
 	if(List_contains(l, data))
 		return;
 	
@@ -71,6 +75,9 @@ void List_addonce(List *l, void *data)
 
 void List_rm(List *l, void *data)
 {
+	if(!l)
+		return;
+		
 	if(l->size == 0)
 		return;
 
