@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "compitex.h"
+#include "util.h"
 
 #define LOG(...)
 
@@ -9,10 +10,10 @@ int main(int argc, char **argv)
 {
     FILE *fin, *fout, *ftmp;
     char eqbuf[MAXBUF];
-    
+        
     fin = stdin;
     fout = stdout;
-    
+
     if(argc > 1) {
         fin = fopen(argv[1], "r");
         if(!fin) {

@@ -4,12 +4,30 @@
 #include "parser.h"
 #include "y.tab.h"
 #include "util.h"
+#include "list.h"
 #include "compitex.h"
 
 #define MAXEXP  4096
+#define MAXPAR  20
 
 static FILE *_out, *_in;
 int INDENT;
+char *par[MAXPAR];
+
+static int addparam(char *parlist[], int listsize, char *p)
+{
+    int i;
+    for(i = 0; i < listsize && parlist[i]; i++)
+        if(!strcmp(parlist[i], p))
+            return 0;
+    
+    if( i >= listsize)
+        return -1;
+    
+    parlist[i] = strdup(p);
+    
+    return 0;
+}
 
 typedef struct sumNode {
     char    idx[2];
@@ -17,6 +35,30 @@ typedef struct sumNode {
     char    lo[12], hi[12];
     char    expr[MAXEXP];
 } sumNode;
+
+enum datatype {
+	DTYPE_DOUBLE,
+	DTYPE_INT,
+	DTYPE_TOT,
+};
+
+typedef struct Parameter {
+	unsigned int type;
+	char *identifier;
+} Parameter;
+
+int Parameter_eq(void *d1, void *d2) {
+	Parameter *p1 = (Parameter *)d1;
+	Parameter *p2 = (Parameter *)d2;
+	
+	if(!p1 || !p2)
+		return 0;
+	
+	if(!strcmp(p1->identifier, p2->identifier))
+		return 1;
+	
+	return 0;
+}
 
 char* _ex2 (char * dst, nodeType *p) {
     int nops;
@@ -197,40 +239,67 @@ char* _sumpass(char *dst, nodeType *p, int topcall) {
     
 }
 
-char * _parampass(char *dst, nodeType *p)
+char * _parampass(List *dst, nodeType *p)
 {
+	Parameter *par;
     switch(p->type) {
     case typeOpr:
+		
+		if(p->opr.oper == SUM) {
+			par = calloc(1, sizeof(Parameter));
+			par->identifier = strdup(p->opr.op[0]->id.s);
+			par->type = DTYPE_INT;
+			List_addonce(dst, par);
+		}
+		
         _parampass(dst, p->opr.op[p->opr.nops-1]);
-        
-        if(p->opr.oper != SUM)
+		
+        if(p->opr.oper == SUM) {
+			_parampass(dst, p->opr.op[1]);
+			_parampass(dst, p->opr.op[2]);
+		} else
             _parampass(dst, p->opr.op[0]);
         break;
         
     case typeId:
-        strfcat(dst, "%s, ", p->id.s);
+		par = calloc(1, sizeof(Parameter));
+		par->identifier = strdup(p->id.s);
+		par->type = DTYPE_DOUBLE;
+		List_addonce(dst, par);
         break;
         
     default:
         break;
     }
     
-    return dst;
+    return "temp";
 }
 
 int ex(nodeType *p) {
     char params[MAXEXP];
     char mainbuf[MAXEXP];
+    int i = 0;
     memset(mainbuf, 0, MAXEXP);
     memset(params, 0, MAXEXP);
-    _parampass(params, p);
-    fprintf(_out, "params:%s\n", params);
+	
+	List *parlist;
+	List_init(parlist, Parameter_eq);
+    _parampass(parlist, p);
+	Node *it = parlist->head;
+
+	fprintf(_out, "Par#    Type    ID\n");
+	for(i = 0;i < parlist->size; i++) {
+		Parameter *par = (Parameter *)it->data;
+		fprintf(_out, "%4d    %4d    %s\n", i, par->type, par->identifier);
+		it = it->next;
+    }
+	
     _sumpass(mainbuf, p, 1);
     fprintf(_out, "%s\n", mainbuf);
 
     memset(mainbuf, 0, MAXEXP);
     _ex2(mainbuf, p);
-    fprintf(_out, "%s\n\n", mainbuf);
+    fprintf(_out, "%s;\n\n", mainbuf);
     return 0;
 } 
 
