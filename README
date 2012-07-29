@@ -1,0 +1,14 @@
+CompiTeX : Convert LaTeX equations to equivalent C-Code.
+
+Acks 
+
+This tool is based on Thomas Niemann's Lex & Yacc tutorial,
+Many thanks go to him for writing such a great document. I
+tried to contact him but failed, hopefully this could be 
+rectified soon.
+
+Disclaimer
+
+CompiTeX is still at a very early phase of development - Obviously !
+At best it's still just a proof-of-concept that could be usable with
+some tweaking.
