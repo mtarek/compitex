@@ -1,7 +1,8 @@
 %{ 
 #include <stdlib.h> 
 #include <string.h>
-int lineno=1;
+#include "compitex.h"
+static int lineno=1;
 %} 
 
 digit   [0-9]
@@ -25,7 +26,7 @@ sigvar	"\\sum"{var}"^{"{digit}+"}"
 					char buf[32];
 					/* Skip the first backslash converting it to underscore */
 					sprintf(buf, "_%s", &yytext[1]);
-					printf("%s", buf);
+					fprintf(yyout,"%s", buf);
 				}
  
 {bar}			{
@@ -39,7 +40,7 @@ sigvar	"\\sum"{var}"^{"{digit}+"}"
 					
 					/* ... and terminate */
 					buf[strlen(s)-1]='\0';
-					printf("%s_bar", buf);
+					fprintf(yyout,"%s_bar", buf);
 				}
 
 {sigvar}		{
@@ -59,7 +60,7 @@ sigvar	"\\sum"{var}"^{"{digit}+"}"
 					strcat(buf,s2+2);
 					buf[strlen(buf)-1] = '\0';
 					
-					printf("%s",buf);
+					fprintf(yyout,"%s",buf);
 	
 				}
 				
@@ -69,21 +70,21 @@ sigvar	"\\sum"{var}"^{"{digit}+"}"
 					{
 						
 						if(*s =='^')
-							printf("_");
+							fprintf(yyout,"_");
 						else if(*s != '{' && *s != '}')
-							printf("%c",*s);
+							fprintf(yyout,"%c",*s);
 						s++;
 					}
 				}
 				
-"\'\'\'\'\'"	printf("pm5");
-"\'\'\'\'"		printf("pm4");
-"\'\'\'"		printf("pm3");
-"\'\'"			printf("pm2");
-"\'"			printf("pm");
+"\'\'\'\'\'"	fprintf(yyout,"pm5");
+"\'\'\'\'"		fprintf(yyout,"pm4");
+"\'\'\'"		fprintf(yyout,"pm3");
+"\'\'"			fprintf(yyout,"pm2");
+"\'"			fprintf(yyout,"pm");
 
-"*"				printf("star");
-","				printf("_");
+"*"				fprintf(yyout,"star");
+","				fprintf(yyout,"_");
 [\n]			{
 					ECHO;
 					lineno++;
@@ -96,10 +97,9 @@ int yywrap(void)
     return 1; 
 }
 
-int preproc(void *in)
+int preproc(FILE *out, FILE *in)
 {
-	yyin = fopen(in, "r");
-	yylex();
-	fclose(yyin);
-	return 0;
+	ppin = in;
+	ppout = out;
+	return pplex();
 }
