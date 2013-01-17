@@ -9,6 +9,18 @@ rectified soon.
 
 Disclaimer
 
-CompiTeX is still at a very early phase of development - Obviously !
-At best it's still just a proof-of-concept that could be usable with
-some tweaking.
+CompiTeX is still at a very early phase of development.
+Currently, its best used as a semi-auto solution for code
+where you'd need to code a large number of equations.
+
+Compiling
+
+You need to have bison and flex installed to be able to
+compiled copmitex.
+
+Usage
+
+compitex filename
+
+filename  : A plain text file containing the LaTeX equations
+            to be converted. Each equation on a separate line.
