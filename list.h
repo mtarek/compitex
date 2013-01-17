@@ -1,4 +1,4 @@
-//typedef struct List List;
+typedef struct List List;
 typedef struct Node Node;
 
 struct Node
@@ -7,13 +7,13 @@ struct Node
 	Node *next;
 };
 
-typedef struct List
+struct List
 {
 	Node *head;
 	Node *tail;
 
 	unsigned int size;
-}List;
+};
 
 void List_init(List *l, int (*eq) (void *d1, void *d2));
 void List_add(List *l, void *data);

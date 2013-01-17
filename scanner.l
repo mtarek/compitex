@@ -61,8 +61,8 @@ sqrt	"\\sqrt"
 
  .              {	
 					char erstr[32];
-					sprintf(erstr, "@%d : Unknown character(%c)", lineno, *yytext);
-					yyerror(erstr); 
+					//sprintf(erstr, "@%d : Unknown character(%c)", lineno, *yytext);
+					//yyerror(erstr); 
 				}
 %% 
 int yywrap(void)

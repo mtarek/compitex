@@ -212,14 +212,14 @@ void _parampass(List *dst, nodeType *p)
 		}
 		
 		
-		_parampass(dst, p->opr.op[p->opr.nops -1]);
+		_parampass(dst, p->opr.op[0]);
 		
         if(p->opr.oper == SUM) {
 			_parampass(dst, p->opr.op[1]);
 			_parampass(dst, p->opr.op[2]);
 		}
 		
-		_parampass(dst, p->opr.op[0]);
+		_parampass(dst, p->opr.op[p->opr.nops -1]);
         break;
         
     case typeId:
@@ -243,13 +243,45 @@ int ex(nodeType *p) {
 	
     _parampass(parlist, p);
 	
+	/* First parameter is always the lvalue, always print this one */
 	Node *it = parlist->head;
-	fprintf(_out, "Par#    Type    ID\n");
+	Parameter *par = (Parameter *)it->data;
+	fprintf(_out, "%s", par->identifier);
+	for(i = 1; i < parlist->size; i++) {
+		it = it->next;
+		par = (Parameter *)it->data;
+		if(par->type == DTYPE_DOUBLE)
+			fprintf(_out, ", %s", par->identifier);
+	}
+	fprintf(_out, "\n");
+	
+	it = parlist->head;
+	int printedone = 0;
+	for(i = 1; i < parlist->size; i++) {
+		it = it->next;
+		par = (Parameter *)it->data;			
+		if(par->type == DTYPE_INT) {
+			if(printedone)
+				fprintf(_out, ", ");
+            else
+                fprintf(_out, "int ");
+                
+			fprintf(_out, "%s", par->identifier);
+			printedone = 1;
+		}
+		
+	}
+    if(printedone)
+        fprintf(_out, ";\n");
+	
+	/*fprintf(_out, "Par#    Type    ID\n");
 	for(i = 0;i < parlist->size; i++) {
 		Parameter *par = (Parameter *)it->data;
 		fprintf(_out, "%4d    %4d    %s\n", i, par->type, par->identifier);
 		it = it->next;
-    }
+    }*/
+	
+	
 	
     _sumpass(mainbuf, p, 1);
     fprintf(_out, "%s\n", mainbuf);

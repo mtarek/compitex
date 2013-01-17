@@ -2,7 +2,7 @@
 #include "compitex.h"
 #include "util.h"
 
-#define LOG(...)
+#define LOG printf
 
 #define MAXBUF  4096
 

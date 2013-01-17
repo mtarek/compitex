@@ -13,7 +13,6 @@ static int dummy_eq(void *d1, void *d2)
 
 void List_init(List *l, int (*compare) (void *d1, void *d2))
 {
-	//l = calloc(1, sizeof(List));
 	
 	if(compare)
 		eq = compare;
