@@ -1,5 +1,6 @@
-#include <string.h>
 #include "list.h"
+#include <string.h>
+#include <stdlib.h>
 
 static int (*eq) (void *d1, void *d2);
 static int dummy_eq(void *d1, void *d2)

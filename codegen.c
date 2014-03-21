@@ -151,7 +151,8 @@ char* _sumpass(char *dst, nodeType *p, int topcall) {
             ret = parse_sum_node(s, p, 0);
             if(ret < 0) {
                 printf("ERR(%d)\n", ret);
-                return -1;
+			//	TODO: Why not return NULL
+                return (char*)(-1);
             }
             
             sprintf(s->svar, "sum%d", sumid++);
@@ -173,7 +174,8 @@ char* _sumpass(char *dst, nodeType *p, int topcall) {
             ret = parse_sum_node(s, p, 1);
             if(ret < 0) {
                 printf("ERR(%d)\n", ret);
-                return -1;
+			//	TODO: Why not return NULL
+                return (char*)(-1);
             }
             
 
