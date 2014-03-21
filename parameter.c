@@ -1,4 +1,6 @@
 #include "parameter.h"
+#include <stdlib.h>
+#include <string.h>
 
 int Parameter_eq(void *d1, void *d2) {
 	Parameter *p1 = (Parameter *)d1;
